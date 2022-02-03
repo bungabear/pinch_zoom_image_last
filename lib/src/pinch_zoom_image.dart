@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pinch_zoom_image_last/src/pinch_zoom_overlay_image.dart';
@@ -36,10 +37,19 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
     return Listener(
       onPointerDown: (_) => numPointers++,
       onPointerUp: (_) => numPointers--,
-      child: GestureDetector(
-        onScaleStart: _handleScaleStart,
-        onScaleUpdate: _handleScaleUpdate,
-        onScaleEnd: _handleScaleEnd,
+      child: RawGestureDetector(
+        gestures: {
+          _AllowMultipleGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+              _AllowMultipleGestureRecognizer>(
+            () => _AllowMultipleGestureRecognizer(), //constructor
+            (_AllowMultipleGestureRecognizer instance) {
+              //initializer
+              instance.onStart = _handleScaleStart;
+              instance.onUpdate = _handleScaleUpdate;
+              instance.onEnd = _handleScaleEnd;
+            },
+          )
+        },
         child: Stack(
           clipBehavior: Clip.none,
           children: <Widget>[
@@ -53,7 +63,8 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
               right: 0.0,
               bottom: 0.0,
               child: Container(
-                color: zooming ? widget.zoomedBackgroundColor : Colors.transparent,
+                color:
+                    zooming ? widget.zoomedBackgroundColor : Colors.transparent,
               ),
             ),
           ],
@@ -72,7 +83,8 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
     OverlayState overlayState = Overlay.of(context)!;
     double width = context.size!.width;
     double height = context.size!.height;
-    origin = (context.findRenderObject() as RenderBox).localToGlobal(Offset(0.0, 0.0));
+    origin = (context.findRenderObject() as RenderBox)
+        .localToGlobal(Offset(0.0, 0.0));
     scaleStartPosition = details.focalPoint;
 
     overlayEntry = OverlayEntry(
@@ -93,8 +105,10 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
     if (reversing || numPointers < 2) return;
-    overlayKey.currentState?.updatePosition(origin! - (scaleStartPosition! - details.focalPoint));
-    if (details.scale >= 1.0) overlayKey.currentState?.updateScale(details.scale);
+    overlayKey.currentState
+        ?.updatePosition(origin! - (scaleStartPosition! - details.focalPoint));
+    if (details.scale >= 1.0)
+      overlayKey.currentState?.updateScale(details.scale);
   }
 
   void _handleScaleEnd(ScaleEndDetails details) async {
@@ -111,5 +125,12 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
     setState(() {
       zooming = false;
     });
+  }
+}
+
+class _AllowMultipleGestureRecognizer extends ScaleGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
   }
 }
