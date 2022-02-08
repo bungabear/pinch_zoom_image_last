@@ -74,6 +74,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
   }
 
   void _handleScaleStart(ScaleStartDetails details) {
+    print("Handle scale start => pointers : $numPointers");
     if (overlayEntry != null || reversing || numPointers < 2) return;
     setState(() {
       zooming = true;
@@ -104,6 +105,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
   }
 
   void _handleScaleUpdate(ScaleUpdateDetails details) {
+    print("Handle scale UPDATE => pointers : $numPointers");
     if (reversing || numPointers < 2) return;
     overlayKey.currentState
         ?.updatePosition(origin! - (scaleStartPosition! - details.focalPoint));
@@ -112,6 +114,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
   }
 
   void _handleScaleEnd(ScaleEndDetails details) async {
+    print("Handle scale END");
     if (reversing || !zooming) return;
     reversing = true;
     if (widget.hideStatusBarWhileZooming) channel.invokeMethod('showStatusBar');
