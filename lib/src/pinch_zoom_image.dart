@@ -9,6 +9,7 @@ class PinchZoomImage extends StatefulWidget {
   final bool hideStatusBarWhileZooming;
   final Function? onZoomStart;
   final Function? onZoomEnd;
+  final StackFit? stackFit;
 
   PinchZoomImage({
     required this.image,
@@ -16,6 +17,7 @@ class PinchZoomImage extends StatefulWidget {
     this.hideStatusBarWhileZooming = false,
     this.onZoomStart,
     this.onZoomEnd,
+    this.stackFit,
   });
 
   @override
@@ -53,6 +55,7 @@ class _PinchZoomImageState extends State<PinchZoomImage> {
         },
         child: Stack(
           clipBehavior: Clip.none,
+          fit: widget.stackFit,
           children: <Widget>[
             Opacity(
               opacity: zooming ? 0.0 : 1.0,
